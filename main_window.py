@@ -7,37 +7,30 @@ Created on Tue Nov 15 22:29:46 2016
 
 import tkinter as tk
 import time_manager as tm
-import time
+from datetime import datetime, timedelta
 
 class MainWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.state("zoomed")
-        self.label = tk.Label(self, text="", width=10)
-        self.label.pack()
         
-        print(self.get_remaining_time())       
+        self.end_time_file = "end_time.txt"
         
-        self.remaining = 0
-        self.countdown(10)
+        self.remaining_label = tk.Label(self, text="", width=10)
+#        sel
+        self.remaining_label.grid(row=0)
+        
+        self.remaining = tm.get_remaining_time(self.end_time_file)
+        self.countdown()
 
-    def countdown(self, remaining = None):
-        if remaining is not None:
-            self.remaining = remaining
-
-        if self.remaining <= 0:
-            self.label.configure(text="time's up!")
+    def countdown(self):       
+        if self.remaining.days < 0:
+            self.remaining_label.configure(text="time's up!")
         else:
-            self.label.configure(text="%s" % time.strftime("%H:%M:%S", time.gmtime(self.get_remaining_time())))
-            self.remaining = self.remaining - 1
-            self.after(1000, self.countdown)
-            
-    def get_remaining_time(self):
-        return tm.get_time_from_txt("end_time.txt") - time.localtime()
-            
+            self.remaining = tm.get_remaining_time(self.end_time_file)
+            self.remaining_label.configure(text=str(timedelta(seconds=self.remaining.seconds)))
+            self.after(1000, self.countdown)            
 
 if __name__ == "__main__":
-#    tm.save_time_to_txt(time.time()+10)
     app = MainWindow()
-    print(app.get_remaining_time())
     app.mainloop()
