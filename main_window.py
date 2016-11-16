@@ -16,11 +16,12 @@ class MainWindow(tk.Tk):
         
         self.end_time_file = "end_time.txt"
         
-        self.remaining_label = tk.Label(self, text="", width=10, font=(None,300), fg="red")        
-        self.remaining_label.pack()
+        self.remaining_label = tk.Label(self, text="", width=10, font=(None,400), fg="red")        
+        self.remaining_label.pack(expand=True)
         
         self.blink_on = False
         
+        self.bind_keys()
         
         self.remaining = tm.get_remaining_time(self.end_time_file)
         self.countdown()
@@ -36,7 +37,7 @@ class MainWindow(tk.Tk):
             if (self.remaining.seconds < 10):
                 self.toggle_color(self.remaining_label)
             
-            self.after(1000, self.countdown)
+            self.after(100, self.countdown)
             
     def toggle_color(self, label):
         if self.blink_on:
@@ -45,6 +46,16 @@ class MainWindow(tk.Tk):
         else:
             label.configure(fg="red", bg="white")
             self.blink_on = True
+            
+    def add_seconds(self, event=None):
+        tm.add_secs_to_end_time(60)
+        
+    def sub_seconds(self, event=None):
+        tm.add_secs_to_end_time(-60)
+        
+    def bind_keys(self):
+        self.bind("+", self.add_seconds)
+        self.bind("-", self.sub_seconds) 
 
 if __name__ == "__main__":
     app = MainWindow()
