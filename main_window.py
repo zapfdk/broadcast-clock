@@ -13,11 +13,13 @@ class MainWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self.state("zoomed")
+        self.configure(bg="black")
         
         self.end_time_file = "end_time.txt"
         
-        self.remaining_label = tk.Label(self, text="", width=10, font=(None,400), fg="red")        
-        self.remaining_label.pack(expand=True)
+        
+        self.remaining_label = tk.Label(self, text="", width=1,height=1, font=(None,300), fg="red", bg="black")        
+        self.remaining_label.pack(fill=tk.BOTH, expand=1)
         
         self.blink_on = False
         
@@ -26,25 +28,28 @@ class MainWindow(tk.Tk):
         self.remaining = tm.get_remaining_time(self.end_time_file)
         self.countdown()
 
-    def countdown(self):       
+    def countdown(self):  
+        self.remaining = tm.get_remaining_time(self.end_time_file)
+        
         if self.remaining.days < 0:
             self.remaining_label.configure(text="Zeit abgelaufen!")
         else:
-            self.remaining = tm.get_remaining_time(self.end_time_file)
             self.remaining_label.configure(text=str(timedelta(seconds=self.remaining.seconds)))
             
             #Attention please!
             if (self.remaining.seconds < 10):
                 self.toggle_color(self.remaining_label)
             
-            self.after(100, self.countdown)
+        self.after(100, self.countdown)
             
     def toggle_color(self, label):
         if self.blink_on:
-            label.configure(fg="white", bg="red")
+            label.configure(fg="black", bg="red")
+            self.configure(bg="red")
             self.blink_on = False
         else:
-            label.configure(fg="red", bg="white")
+            label.configure(fg="red", bg="black")
+            self.configure(bg="black")
             self.blink_on = True
             
     def add_seconds(self, event=None):
