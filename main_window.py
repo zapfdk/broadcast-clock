@@ -12,7 +12,10 @@ from datetime import datetime, timedelta
 class MainWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
-        self.state("zoomed")
+        
+        self.screen_width, self.screen_height = self.winfo_screenwidth(), self.winfo_screenheight()
+        self.geometry("%dx%d+0+0" % (self.screen_width, self.screen_height))        
+        
         self.configure(bg="black")
         
         self.end_time_file = "end_time.txt"
@@ -55,6 +58,7 @@ class MainWindow(tk.Tk):
             self.blink_on = True
             
     def add_seconds(self, event=None):
+        print("hello")
         tm.add_secs_to_end_time(60)
         
     def sub_seconds(self, event=None):
@@ -73,7 +77,3 @@ class MainWindow(tk.Tk):
         self.bind("-", self.sub_seconds)
         self.bind("s", self.reduce_font_size)
         self.bind("w", self.increase_font_size)
-
-if __name__ == "__main__":
-    app = MainWindow()
-    app.mainloop()
