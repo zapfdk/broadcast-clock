@@ -7,6 +7,7 @@ Created on Thu Nov 17 14:18:18 2016
 
 import sys
 import os
+import socket
 
 import main_window
 import time_manager as tm
@@ -52,11 +53,3 @@ if __name__ == "__main__":
         sys.exit()
     else:
         check_arguments(arguments)
-        
-
-            
-        
-        
-    
-    
-    
