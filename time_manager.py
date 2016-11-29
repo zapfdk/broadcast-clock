@@ -40,7 +40,7 @@ def get_hint_text_from_txt(filename):
     written_yet = False
     while not written_yet:
         try: 
-            with open("hint_text.txt", "r") as f:
+            with open(filename, "r") as f:
                 hint_text = f.readline().strip()
                 return hint_text
         except:
@@ -54,6 +54,18 @@ def save_hint_text_to_txt(hint_text):
         try:
             with open("hint_text.txt", "w") as f:
                 f.write(hint_text)
+            written_yet = True  
+        except:
+            print(sys.exc_info()[0])
+            print("Saving to file failed. Trying again in %.1f seconds" %sleep_secs)
+            time.sleep(0.3)
+            
+def save_remaining_time_to_txt(remaining_time):
+    written_yet = False
+    while not written_yet:
+        try:
+            with open("remaining_time.txt", "w") as f:
+                f.write(remaining_time)
             written_yet = True  
         except:
             print(sys.exc_info()[0])

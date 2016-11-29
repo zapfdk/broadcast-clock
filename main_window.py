@@ -16,6 +16,8 @@ class MainWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         
+        self.title("NightStuff Countdown")
+        
         self.screen_width, self.screen_height = self.winfo_screenwidth(), self.winfo_screenheight()
         self.geometry("%dx%d+0+0" % (self.screen_width, self.screen_height))
         self.configure(bg="black") 
@@ -39,12 +41,12 @@ class MainWindow(tk.Tk):
         font_helv_countdown_name = tkinter.font.Font(family="Arial",size=int(self.screen_height*0.15))
         
         self.remaining_label = tk.Label(self, text="", width=1,height=1, font=font_helv_countdown, fg="red", bg="black")        
-        self.remaining_label.grid(row = 0, sticky=tk.W+tk.E+tk.N+tk.S)
+        self.remaining_label.grid(row = 0, sticky="wens")
         
         self.separator = tk.Frame(self,height=3,bg="red")
         self.separator.grid(row=1,sticky="ew")
         
-        self.countdown_to_name_label = tk.Label(self, text="-> MAZ",font=font_helv_countdown_name,fg="red",bg="black")
+        self.countdown_to_name_label = tk.Label(self, text="",font=font_helv_countdown_name,fg="red",bg="black")
         self.countdown_to_name_label.grid(row = 2, sticky=tk.W+tk.E+tk.N)
         
         self.blink_on = False
@@ -56,15 +58,18 @@ class MainWindow(tk.Tk):
 
     def countdown(self):  
         self.remaining = tm.get_remaining_time(self.end_time_file)
+        self.countdown_to_name_label.configure(text=str(tm.get_hint_text_from_txt("hint_text.txt")))
         
         if self.remaining.days < 0:
-            self.remaining_label.configure(text="0:00:00\nZeit abgelaufen!")
+            self.remaining_label.configure(text="0:00:00",bg="red",fg="black")
         else:
-            self.remaining_label.configure(text=str(timedelta(seconds=self.remaining.seconds)))
+            remaining_time_str = str(timedelta(seconds=self.remaining.seconds))
+            self.remaining_label.configure(text=remaining_time_str,bg="black",fg="red")
+            tm.save_remaining_time_to_txt(remaining_time_str)
             
             #Attention please!
-            if (self.remaining.seconds < 10):
-                self.toggle_color(self.remaining_label)
+#            if (self.remaining.seconds < 10):
+#                self.toggle_color(self.remaining_label)
             
         self.after(100, self.countdown)
             

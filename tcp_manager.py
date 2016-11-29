@@ -21,7 +21,7 @@ class TCPManager():
     def create_socket(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((self.TCP_IP, self.TCP_PORT))
-        self.s.listen(1)
+        self.s.listen(5)
         
     def start_input_loop(self):
         try:
@@ -32,23 +32,24 @@ class TCPManager():
                 print("Connection address:", addr)
                 data = conn.recv(BUFFER_SIZE)
                 data = data.decode("utf-8")
+                print("Received data:", data)
                 if data == "":
                     print("Error: Empty data received.")
                     conn.send(data.encode())
                     conn.close()
-                    break
                 elif data == "-stop":
                     print("Closing connection...")
                     conn.send(data.encode())
                     conn.close()
                     break
+                elif data == "-check":
+                    print("Checking.")
+                    conn.send("check".encode())
+                    conn.close()
+                else:
+                    self.handle_data(data.split(" "),conn)
+                    
                 
-                print("Received data:", data)
-                
-                self.handle_data(data.split(" "))
-                
-                conn.send("Transmission successfull.".encode())
-                conn.close()
         except:
             print(sys.exc_info()[0])
         finally:
@@ -57,19 +58,30 @@ class TCPManager():
             print("Closing socket...")
             self.s.close()
         
-    def handle_data(self, data):
+    def handle_data(self, data, conn):
         if "-a" in data:
             delta_seconds = int(data[1])
-            tm.add_secs_to_end_time(delta_seconds)        
+            tm.add_secs_to_end_time(delta_seconds)  
+            conn.send("check".encode())
+            
         elif "-s" in data:
             delta_seconds = int(data[1])
             tm.add_secs_to_end_time(-delta_seconds)
+            conn.send("check".encode())
+            
         elif "-settext" in data:
             text_list = data[1:]
             text = " ".join(text_list)
             tm.save_hint_text_to_txt(text)
+            conn.send("check".encode())
             
-        
+        elif "-getremainingtime" in data:
+            conn.send(tm.get_hint_text_from_txt("remaining_time.txt").encode())
+            
+        elif "-gethinttext" in data:
+            conn.send(tm.get_hint_text_from_txt("hint_text.txt").encode())
+                
+        conn.close()
 
 if __name__ == "__main__":   
     TCP_IP = socket.gethostbyname(socket.gethostname())
