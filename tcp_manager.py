@@ -7,7 +7,7 @@ Created on Tue Nov 29 14:36:12 2016
 """
 
 import socket
-
+import sys
 import time_manager as tm
 
 class TCPManager():
@@ -37,14 +37,24 @@ class TCPManager():
                     conn.send(data.encode())
                     conn.close()
                     break
+                elif data == "-stop":
+                    print("Closing connection...")
+                    conn.send(data.encode())
+                    conn.close()
+                    break
+                
                 print("Received data:", data)
                 
                 self.handle_data(data.split(" "))
                 
-                conn.send("Transmission successfull.")
+                conn.send("Transmission successfull.".encode())
                 conn.close()
+        except:
+            print(sys.exc_info()[0])
         finally:
-            self.s.shutdown()
+            print("Shutting down socket...")
+            self.s.shutdown(socket.SHUT_RDWR)
+            print("Closing socket...")
             self.s.close()
         
     def handle_data(self, data):
@@ -55,14 +65,18 @@ class TCPManager():
             delta_seconds = int(data[1])
             tm.add_secs_to_end_time(-delta_seconds)
         elif "-settext" in data:
-            text = data[1]
+            text_list = data[1:]
+            text = " ".join(text_list)
+            tm.save_hint_text_to_txt(text)
             
         
 
 if __name__ == "__main__":   
-    TCP_IP = "141.24.42.20"
+    TCP_IP = socket.gethostbyname(socket.gethostname())
     TCP_PORT = 5005
     BUFFER_SIZE = 1024
     
     tcp_manager = TCPManager(TCP_IP, TCP_PORT, BUFFER_SIZE)
+    print("Created TCP Socket at %s:%s." %(TCP_IP,TCP_PORT))
     tcp_manager.start_input_loop()
+    print("Stopped TCP Server.")

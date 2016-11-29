@@ -23,7 +23,6 @@ def get_time_from_txt(filename):
             print(sys.exc_info()[0])
             print("Reading from file failed. Trying again in %.1f seconds" %sleep_secs)
             time.sleep(0.3)
-            return        
     
 def save_time_to_txt(end_time):
     written_yet = False
@@ -34,9 +33,32 @@ def save_time_to_txt(end_time):
             written_yet = True  
         except:
             print(sys.exc_info()[0])
+            print("Saving to file failed. Trying again in %.1f seconds" %sleep_secs)
+            time.sleep(0.3)
+            
+def get_hint_text_from_txt(filename):
+    written_yet = False
+    while not written_yet:
+        try: 
+            with open("hint_text.txt", "r") as f:
+                hint_text = f.readline().strip()
+                return hint_text
+        except:
+            print(sys.exc_info()[0])
             print("Reading from file failed. Trying again in %.1f seconds" %sleep_secs)
             time.sleep(0.3)
-            return        
+            
+def save_hint_text_to_txt(hint_text):
+    written_yet = False
+    while not written_yet:
+        try:
+            with open("hint_text.txt", "w") as f:
+                f.write(hint_text)
+            written_yet = True  
+        except:
+            print(sys.exc_info()[0])
+            print("Saving to file failed. Trying again in %.1f seconds" %sleep_secs)
+            time.sleep(0.3)
     
 def add_secs_to_end_time(delta_seconds):
     current_end_time = get_time_from_txt("end_time.txt")
