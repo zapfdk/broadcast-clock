@@ -9,6 +9,7 @@ Created on Tue Nov 29 14:36:12 2016
 import socket
 import sys
 import time_manager as tm
+import tkinter as tk
 
 class TCPManager():
     def __init__(self, tcp_ip, tcp_port, buffer_size):
@@ -18,6 +19,15 @@ class TCPManager():
         
         self.create_socket()
         
+        self.has_server_stopped = False
+        
+    def stop_server(self):
+        print("Shutting down socket...")
+        self.s.shutdown(socket.SHUT_RDWR)
+        print("Closing socket...")
+        self.s.close()
+        self.has_server_stopped = True
+        
     def create_socket(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((self.TCP_IP, self.TCP_PORT))
@@ -25,7 +35,7 @@ class TCPManager():
         
     def start_input_loop(self):
         try:
-            while 1:
+            while not self.has_server_stopped:
                 print("Waiting for connection...")
                 
                 conn, addr = self.s.accept()
@@ -48,15 +58,11 @@ class TCPManager():
                     conn.close()
                 else:
                     self.handle_data(data.split(" "),conn)
-                    
                 
         except:
             print(sys.exc_info()[0])
         finally:
-            print("Shutting down socket...")
-            self.s.shutdown(socket.SHUT_RDWR)
-            print("Closing socket...")
-            self.s.close()
+            self.stop_server()
         
     def handle_data(self, data, conn):
         if "-a" in data:
@@ -80,6 +86,11 @@ class TCPManager():
             
         elif "-gethinttext" in data:
             conn.send(tm.get_hint_text_from_txt("hint_text.txt").encode())
+            
+        elif "-getendtime" in data:
+            end_time = str(tm.get_time_from_txt("end_time.txt"))
+            print(end_time)
+            conn.send(end_time.encode())
                 
         conn.close()
 

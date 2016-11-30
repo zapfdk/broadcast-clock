@@ -18,6 +18,8 @@ class CountdownController(tk.Tk):
         tk.Tk.__init__(self)
         self.title("Countdown Controller")
         
+        self.default_bg = self.cget("bg")
+        
         self.ip_label = tk.Label(self,text="IP: ")
         self.ip_label.grid(row=0,column=0,stick=tk.E)
         
@@ -65,12 +67,17 @@ class CountdownController(tk.Tk):
         self.countdown_label = tk.Label(self, text="Verbleibende Zeit: ")
         self.countdown_label.grid(row=4,column=0,sticky="e")        
         self.remaining_time_label = tk.Label(self, text="0:00:00")
-        self.remaining_time_label.grid(row=4,column=1,sticky="w")        
+        self.remaining_time_label.grid(row=4,column=1,sticky="w")    
+        
+        self.countdown_end_label = tk.Label(self, text="Aktuelle Countdownendzeit: ")
+        self.countdown_end_label.grid(row=5,column=0, sticky="e")
+        self.countdown_end_var_label = tk.Label(self, text="0:00:00")
+        self.countdown_end_var_label.grid(row=5,column=1,sticky="w")
         
         self.hint_label = tk.Label(self, text="Aktueller Hinweistext: ")
-        self.hint_label.grid(row=5,column=0,sticky="e")
+        self.hint_label.grid(row=6,column=0,sticky="e")
         self.current_hint_label = tk.Label(self, text=self.hint_text_entry_var.get())
-        self.current_hint_label.grid(row=5,column=1,sticky="w")
+        self.current_hint_label.grid(row=6,column=1,sticky="w")
         
         self.live_countdown_loop()
         
@@ -89,12 +96,22 @@ class CountdownController(tk.Tk):
             self.s.send("-gethinttext".encode())
             current_hint = self.get_recv_str()
             self.current_hint_label.configure(text=current_hint)
-            self.s.close()  
+            self.s.close()
             
+            self.create_socket()
+            self.s.send("-getendtime".encode())
+            current_hint = self.get_recv_str()
+            self.countdown_end_var_label.configure(text=current_hint)
+            self.s.close()
+            
+            if len(self.hint_text_entry_var.get()) > 15:
+                self.hint_text_entry.configure(bg="red")
+            else: 
+                self.hint_text_entry.configure(bg="white")
         else:
             print("Check connection first...")
         
-        self.after(500, self.live_countdown_loop)
+        self.after(100, self.live_countdown_loop)
         
     def on_press_connect(self):
         self.tcp_ip = self.ip_entry_var.get()
@@ -121,10 +138,10 @@ class CountdownController(tk.Tk):
         if len(hint_text) <= 15:
             command = "-settext " + hint_text
             self.s.send(command.encode())
-            self.hint_text_button.configure(bg="green")
             self.focus()
             answer = self.get_recv_str()
             print(answer)
+            self.hint_text_button.configure(bg=self.default_bg)
             
             self.s.close()
         else:
