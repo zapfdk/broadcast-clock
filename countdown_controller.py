@@ -9,8 +9,9 @@ import tkinter as tk
 from functools import partial
 import socket
 from datetime import datetime, timedelta
+import traceback
 
-expand_grid_cell = tk.N + tk.E + tk.W + tk.S
+EXPAND_GRID_CELL = tk.N + tk.E + tk.W + tk.S
 
 
 class CountdownController(tk.Tk):
@@ -65,11 +66,11 @@ class CountdownController(tk.Tk):
 
         self.hint_text_entry_var = tk.StringVar(self, value="Hint Text")
         self.hint_text_entry = tk.Entry(self, textvariable=self.hint_text_entry_var)
-        self.hint_text_entry.grid(row=3, column=1, rowspan=1, columnspan=3, sticky=expand_grid_cell)
+        self.hint_text_entry.grid(row=3, column=1, rowspan=1, columnspan=3, sticky=EXPAND_GRID_CELL)
         self.hint_text_entry.bind("<Return>", self.on_press_return)
 
         self.hint_text_button = tk.Button(self, text="Sende Text", command=self.on_press_send_text)
-        self.hint_text_button.grid(row=3, column=4, sticky=expand_grid_cell)
+        self.hint_text_button.grid(row=3, column=4, sticky=EXPAND_GRID_CELL)
 
         self.countdown_label = tk.Label(self, text="Verbleibende Zeit: ")
         self.countdown_label.grid(row=4, column=0, sticky="e")
@@ -112,11 +113,11 @@ class CountdownController(tk.Tk):
 
         self.countdown_entry_var = tk.StringVar(self, value="0:00:00")
         self.countdown_entry = tk.Entry(self, textvariable=self.countdown_entry_var, width=5)
-        self.countdown_entry.grid(row=7, column=1, rowspan=1, sticky=expand_grid_cell)
+        self.countdown_entry.grid(row=7, column=1, rowspan=1, sticky=EXPAND_GRID_CELL)
         self.countdown_entry.bind("<Return>", self.on_press_return)
 
         self.set_countdown_button = tk.Button(self, text="Senden", command=self.on_press_send_set_countdown)
-        self.set_countdown_button.grid(row=7, column=2, sticky=expand_grid_cell)
+        self.set_countdown_button.grid(row=7, column=2, sticky=EXPAND_GRID_CELL)
 
         self.set_countdown_err = tk.Label(self, text="", fg="red")
         self.set_countdown_err.grid(row=7, column=3)
@@ -127,11 +128,11 @@ class CountdownController(tk.Tk):
 
         self.end_time_entry_var = tk.StringVar(self, value="0:00:00")
         self.end_time_entry = tk.Entry(self, textvariable=self.end_time_entry_var, width=5)
-        self.end_time_entry.grid(row=8, column=1, rowspan=1, sticky=expand_grid_cell)
+        self.end_time_entry.grid(row=8, column=1, rowspan=1, sticky=EXPAND_GRID_CELL)
         self.end_time_entry.bind("<Return>", self.on_press_return)
 
         self.set_end_time_button = tk.Button(self, text="Senden", command=self.on_press_send_end_time)
-        self.set_end_time_button.grid(row=8, column=2, sticky=expand_grid_cell)
+        self.set_end_time_button.grid(row=8, column=2, sticky=EXPAND_GRID_CELL)
 
         self.set_end_time_err = tk.Label(self, text="", fg="red")
         self.set_end_time_err.grid(row=8, column=3)
@@ -140,6 +141,8 @@ class CountdownController(tk.Tk):
         if self.connection_checked:
             remaining_time = ""
             current_hint = ""
+
+            print("yesyesyes")
 
             self.create_socket()
             self.s.send("-getremainingtime".encode())
@@ -184,21 +187,31 @@ class CountdownController(tk.Tk):
         self.after(100, self.live_countdown_loop)
 
     def on_press_connect(self):
-        self.tcp_ip = self.ip_entry_var.get()
-        self.tcp_port = int(self.port_entry_var.get())
-        self.create_socket()
-        self.s.send("-check".encode())
-        answer = self.s.recv(self.buffer_size)
-        answer = answer.decode()
+        try:
+            self.tcp_ip = self.ip_entry_var.get()
+            self.tcp_port = int(self.port_entry_var.get())
+            self.create_socket()
+            self.s.send("-check".encode())
+            answer = self.s.recv(self.buffer_size)
+            answer = answer.decode()
 
-        if answer == "check":
-            self.connect_button.configure(bg="green", text="Connected")
-            print("Connected with: ", self.tcp_ip, self.tcp_port)
-            self.connection_checked = True
+            if answer == "check":
+                self.connect_button.configure(bg="green", text="Connected")
+                print("Connected with: ", self.tcp_ip, self.tcp_port)
+                self.connection_checked = True
+            else:
+                self.connect_button.configure(bg="red", text="Not Connected")
+                self.connection_checked = False
 
-        self.s.close()
+            self.s.close()
 
-        self.focus()
+            self.focus()
+        except:
+            self.connect_button.configure(bg="red", text="Not Connected")
+            self.connection_checked = False
+            print("Something wrong with IP or Port: ")
+            traceback.print_exc()
+
 
     def on_press_send_set_countdown(self, event=None):
         countdown = self.countdown_entry_var.get()
