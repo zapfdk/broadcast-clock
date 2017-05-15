@@ -184,7 +184,7 @@ class CountdownController(tk.Tk):
         else:
             print("Check connection first...")
 
-        self.after(100, self.live_countdown_loop)
+        self.after(5000, self.live_countdown_loop)
 
     def on_press_connect(self):
         try:

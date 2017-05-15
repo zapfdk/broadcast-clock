@@ -14,15 +14,19 @@ import platform
 
 
 class MainWindow(tk.Tk):
-    def __init__(self):
+    def __init__(self, window_height, window_width):
         tk.Tk.__init__(self)
 
         self.title("NightStuff Countdown")
+        self.window_width = window_width        
+        self.window_height = window_height
+        self.geometry("%dx%d" %(self.window_width, self.window_height))
 
-        self.screen_width, self.screen_height = self.winfo_screenwidth(), self.winfo_screenheight()
-        self.geometry("%dx%d+0+0" % (self.screen_width, self.screen_height))
+#        self.window_width, self.window_height = self.winfo_screenwidth(), self.winfo_screenheight()
+#        self.geometry("%dx%d+0+0" % (self.window_width, self.window_height))
         self.configure(bg="black")
         self.end_time_file = "end_time.txt"
+        print(self.winfo_screenwidth(), self.winfo_screenheight())
 
         self.lift()
 
@@ -34,12 +38,12 @@ class MainWindow(tk.Tk):
         first_row_weight = 0.7
         second_row_weight = 1 - first_row_weight
 
-        # self.grid_rowconfigure(0,minsize=int(first_row_weight*self.screen_height))
-        self.grid_rowconfigure(2, minsize=int(second_row_weight * self.screen_height))
-        self.grid_columnconfigure(0, minsize=int(self.screen_width))
+        # self.grid_rowconfigure(0,minsize=int(first_row_weight*self.window_height))
+        self.grid_rowconfigure(2, minsize=int(second_row_weight * self.window_height))
+        self.grid_columnconfigure(0, minsize=int(self.window_width))
 
-        font_helv_countdown = tkinter.font.Font(family="Arial", size=int(self.screen_height / 3), weight="bold")
-        font_helv_countdown_name = tkinter.font.Font(family="Arial", size=int(self.screen_height * 0.15))
+        font_helv_countdown = tkinter.font.Font(family="Arial", size=int(self.window_height / 2.5))
+        font_helv_countdown_name = tkinter.font.Font(family="Arial", size=int(self.window_height * 0.15))
 
         self.remaining_label = tk.Label(self, text="", width=1, height=1, font=font_helv_countdown, fg="red",
                                         bg="black",anchor="n",pady=-500)
@@ -49,7 +53,7 @@ class MainWindow(tk.Tk):
         self.separator.grid(row=1, sticky="ew")
 
         self.countdown_to_name_label = tk.Message(self, text="", font=font_helv_countdown_name, fg="red", bg="black",
-                                                  width=self.screen_width,anchor="n",justify="center")
+                                                  width=self.window_width,anchor="n",justify="center")
         self.countdown_to_name_label.grid(row=2)#, sticky="wen")
 
         self.blink_on = False
@@ -62,6 +66,8 @@ class MainWindow(tk.Tk):
 
     def countdown(self):
         self.remaining = tm.get_remaining_time(self.end_time_file)
+        print("Hello")
+        print(self.remaining.seconds)
 
         new_hint_text = str(tm.get_hint_text_from_txt("hint_text.txt"))
 
@@ -112,3 +118,10 @@ class MainWindow(tk.Tk):
         self.bind("-", self.sub_seconds)
         self.bind("s", self.reduce_font_size)
         self.bind("w", self.increase_font_size)
+        
+if __name__ == "__main__":
+    window_height = 1080
+    winow_width = 1920
+    
+    countdown_instance = MainWindow(window_height=1080, window_width=1920)
+    countdown_instance.mainloop()

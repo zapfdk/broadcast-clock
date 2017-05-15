@@ -9,7 +9,6 @@ Created on Tue Nov 29 14:36:12 2016
 import socket
 import sys
 import time_manager as tm
-from datetime import datetime, timedelta
 
 class TCPManager():
     def __init__(self, tcp_ip, tcp_port, buffer_size):
@@ -65,48 +64,21 @@ class TCPManager():
             self.stop_server()
         
     def handle_data(self, data, conn):
-        check_code = "check".encode()
-        fail_code = "fail".encode()
-
         if "-a" in data:
-            try:
-                delta_seconds = int(data[1])
-                tm.add_secs_to_end_time(delta_seconds)
-                conn.send(check_code)
-            except:
-                conn.send(fail_code)
+            delta_seconds = int(data[1])
+            tm.add_secs_to_end_time(delta_seconds)  
+            conn.send("check".encode())
             
         elif "-s" in data:
-            try:
-                delta_seconds = int(data[1])
-                tm.add_secs_to_end_time(-delta_seconds)
-                conn.send(check_code)
-            except:
-                conn.send(fail_code)
-
+            delta_seconds = int(data[1])
+            tm.add_secs_to_end_time(-delta_seconds)
+            conn.send("check".encode())
+            
         elif "-settext" in data:
-            try:
-                text_list = data[1:]
-                text = " ".join(text_list)
-                tm.save_hint_text_to_txt(text)
-                conn.send(check_code)
-            except:
-                conn.send(fail_code)
-
-        elif "-setendtime" in data:
-            try:
-                end_time_string = data[1]
-                end_time = datetime.strptime(end_time_string,"%H:%M:%S")
-                conn.send(check_code)
-            except:
-                conn.send(fail_code)
-
-        elif "-setremainingtime" in data:
-            try:
-                conn.send(check_code)
-            except:
-                conn.send(fail_code)
-
+            text_list = data[1:]
+            text = " ".join(text_list)
+            tm.save_hint_text_to_txt(text)
+            conn.send("check".encode())
             
         elif "-getremainingtime" in data:
             conn.send(tm.get_hint_text_from_txt("remaining_time.txt").encode())
@@ -121,10 +93,17 @@ class TCPManager():
                 
         conn.close()
 
-if __name__ == "__main__":   
-    TCP_IP = socket.gethostbyname(socket.gethostname())
+if __name__ == "__main__":
     TCP_PORT = 5005
     BUFFER_SIZE = 1024
+    
+    print("sdfsd")
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(('8.8.8.8', 0))  # connecting to a UDP address doesn't send packets
+    TCP_IP = s.getsockname()[0]
+    
+    print("asdf")
     
     tcp_manager = TCPManager(TCP_IP, TCP_PORT, BUFFER_SIZE)
     print("Created TCP Socket at %s:%s." %(TCP_IP,TCP_PORT))
